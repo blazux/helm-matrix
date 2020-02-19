@@ -1,0 +1,22 @@
+#Domain Name is used by the 3 component: synapse, coturn and ma1sd
+#This will be used to configure :
+# - matrix.domain.foo
+# - turn.domain.foo
+#Make sure all those 3 records are pointing toward you ingress controller
+domainName: domain.foo
+
+#A valid certificate is mandatory for synapse to be accessed by client app
+#Change the issuer type according to your config, available values are
+# issuer / cluster-issuer
+#then add the name of your issuer (staging first until synapse is running), then
+#you can switch to prod
+issuer:
+  type: cluster-issuer
+  name: letsencrypt-cluster-staging
+
+#TURN server needs to know the public IP address it's using
+#Service will be used to make port 3478 (actual TURN service) available for the 
+#outside world, change it according to your needs: NodePort or LoadBalancer
+coturn:
+  externalIP: 80.124.5.79
+  serviceType: LoadBalancer

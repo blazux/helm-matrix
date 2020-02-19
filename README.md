@@ -1,2 +1,8 @@
 # helm-matrix
-A helm chart for matrix + coturn + ma1sd deployment
+
+This helm chart will deploy the 3 base component:
+ - synapse 
+ - coturn
+ - ma1sd (the identity server)
+
+

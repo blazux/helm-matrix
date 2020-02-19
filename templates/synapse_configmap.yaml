@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matrix-config
+  namespace: {{ .Release.Namespace }}
+data:
+  SYNAPSE_SERVER_NAME: "matrix.{{ .Values.domainName }}"
+  SYNAPSE_REPORT_STATS: "no"
+  MATRIX_DOMAIN: "matrix.{{ .Values.domainName }}"
+

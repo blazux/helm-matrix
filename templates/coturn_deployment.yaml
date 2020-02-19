@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: null
+  generation: 1
+  labels:
+    app: coturn-pod
+  name: coturn-pod
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: coturn-pod
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: coturn-pod
+    spec:
+#      securityContext:
+#        runAsUser: 991
+#        runAsGroup: 991
+      containers:
+      - name: coturn
+        image: instrumentisto/coturn
+        args: ["--use-auth-secret","--static-auth-secret=5JzAFMTfKtSm3bc0G02irJtHSRFkFpARFLUj4xMannzI9WyJMwGSEtg8A7mh4XWs","--realm=turn.{{ .Values.domainName }}","--external-ip={{ .Values.coturn.externalIP }}"]
+        imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: coturn-pod
+  name: coturn-listerner
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - name: coturn-listerner
+    port: 3478
+    targetPort: 3478
+  selector:
+    app: coturn-pod
+  sessionAffinity: None
+  type: {{ .Values.coturn.serviceType }}

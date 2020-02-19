@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: null
+  generation: 1
+  labels:
+    app: matrix-3pid-pod
+  name: matrix-3pid-pod
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: matrix-3pid-pod
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: matrix-3pid-pod
+    spec:
+      containers:
+      - name: matrix-3pid-run
+        image: ma1uta/ma1sd
+        envFrom:
+          - configMapRef:
+              name: matrix-config
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: matrix-volume
+          mountPath: /var/ma1sd
+        - name: matrix-volume
+          mountPath: /etc/ma1sd
+          subPath: etc_ma1sd
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: matrix-volume
+        persistentVolumeClaim:
+          claimName: matrix-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: matrix-3pid-pod
+  name: matrix-3pid-svc
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - name: client
+    port: 8090
+    protocol: TCP
+    targetPort: 8090
+  selector:
+    app: matrix-3pid-pod
+  sessionAffinity: None
+  type: ClusterIP
+
